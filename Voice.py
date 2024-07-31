@@ -94,7 +94,7 @@ class CoquiVoice(Voice):
 		self.speaker_wav = ""
 	def speak(self, text, file_path=None):
 		if file_path:
-			if not self.use_vc:
+			if not self.use_vc or "xtts" in self.voice.model_name:
 				return self.voice.tts_to_file(
 					text,
 					file_path=file_path,
@@ -115,7 +115,8 @@ class CoquiVoice(Voice):
 			return np.array(self.voice.tts(
 				text,
 				speaker=self.speaker,
-				language= 'en' if self.voice.is_multi_lingual else None
+				language= 'en' if self.voice.is_multi_lingual else None,
+				speaker_wav=self.speaker_wav
 			))
 
 	def set_voice_params(self, voice=None, speaker=None, speaker_wav=None, use_vc=None, progress=None):
@@ -145,6 +146,8 @@ class CoquiVoice(Voice):
 			self.speaker_wav = speaker_wav
 		if speaker is not None:
 			self.speaker = speaker
+			if "xtts" in self.voice.model_name and self.use_vc:
+				self.speaker = None
 
 	def list_voice_options(self):
 		return self.voice.models
